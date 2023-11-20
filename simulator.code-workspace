@@ -1,75 +1,94 @@
 {
-	// https://code.visualstudio.com/docs/editor/workspaces
-	// https://code.visualstudio.com/docs/editor/multi-root-workspaces
-	// https://code.visualstudio.com/docs/editor/variables-reference
-
-	"folders": [
-		{
-			"path": "."
-		},
-	],
-	// extensions.json section
-	"extensions": {
-		"recommendations": [
-			"ms-vscode.cpptools",              // common C/C++ support
-			"ms-vscode.cpptools-themes",       // general C/C++ theme
-		],
-		"unwantedRecommendations": [
-		]
-	},
-	// settings.json section
-	"settings": {
-		"files.trimTrailingWhitespace": true,
-		"files.insertFinalNewline": true,
-		"files.trimFinalNewlines": true,
-		"cmake.configureOnOpen": false,
-		"files.associations": {
-			"lv_demos.h": "c",
-			"lvgl.h": "c",
-			"lv_drv_conf.h": "c",
-			"stdlib.h": "c"
-		},
-	},
-	// tasks.json section
-	"tasks": {
-		"version": "2.0.0",
-		"tasks": [
-			{
-				"label": "Build",
-				"command": "make",
-				"group": {
-					"kind": "build",
-					"isDefault": true
-				},
-				"problemMatcher": {
-					"owner": "cpp",
-					"fileLocation": ["relative", "${workspaceFolder}"],
-					"pattern": {
-						"regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
-						"file": 1,
-						"line": 2,
-						"column": 3,
-						"severity": 4,
-						"message": 5
-					}
-				}
-			},
-		],
-	},
-	// launch.json section
-	"launch": {
-		"version": "0.2.0",
-		"configurations": [
-			{
-				"name": "Debug LVGL demo with gdb",
-				"type": "cppdbg",
-				"request": "launch",
-			        "program": "${workspaceFolder}/build/bin/demo",
-				"args": [],
-				"cwd": "${fileDirname}",
-				"preLaunchTask": "Build",
-				"stopAtEntry": false,
-			},
-		],
-	},
+    // https://code.visualstudio.com/docs/editor/workspaces
+    // https://code.visualstudio.com/docs/editor/multi-root-workspaces
+    // https://code.visualstudio.com/docs/editor/variables-reference
+    "folders": [
+        {
+            "path": "."
+        },
+    ],
+    // extensions.json section
+    "extensions": {
+        "recommendations": [
+            "ms-vscode.cpptools", // common C/C++ support
+            "ms-vscode.cpptools-themes", // general C/C++ theme
+        ],
+        "unwantedRecommendations": []
+    },
+    // settings.json section
+    "settings": {
+        "files.trimTrailingWhitespace": true,
+        "files.insertFinalNewline": true,
+        "files.trimFinalNewlines": true,
+        "cmake.configureOnOpen": false,
+        "files.associations": {
+            "lv_demos.h": "c",
+            "lvgl.h": "c",
+            "lv_drv_conf.h": "c",
+            "stdlib.h": "c",
+            "xlib.h": "c",
+            "lv_hal.h": "c",
+            "lv_obj.h": "c",
+            "x11.h": "c",
+            "xutil.h": "c",
+            "array": "c",
+            "compare": "c",
+            "functional": "c",
+            "tuple": "c",
+            "type_traits": "c",
+            "utility": "c"
+        },
+        "makefile.launchConfigurations": [
+            {
+                "cwd": "/mnt/c/Users/rini/DATA/#Git-Stash/lv_port_pc_vscode/build/bin",
+                "binaryPath": "/mnt/c/Users/rini/DATA/#Git-Stash/lv_port_pc_vscode/build/bin/demo",
+                "binaryArgs": []
+            }
+        ],
+    },
+    // tasks.json section
+    "tasks": {
+        "version": "2.0.0",
+        "tasks": [
+            {
+                "label": "Build",
+                "command": "make",
+                "group": {
+                    "kind": "build",
+                    "isDefault": true
+                },
+                "problemMatcher": {
+                    "owner": "cpp",
+                    "fileLocation": [
+                        "relative",
+                        "${workspaceFolder}"
+                    ],
+                    "pattern": {
+                        "regexp": "^(.*):(\\d+):(\\d+):\\s+(warning|error):\\s+(.*)$",
+                        "file": 1,
+                        "line": 2,
+                        "column": 3,
+                        "severity": 4,
+                        "message": 5
+                    }
+                }
+            },
+        ],
+    },
+    // launch.json section
+    "launch": {
+        "version": "0.2.0",
+        "configurations": [
+            {
+                "name": "Debug LVGL demo with gdb",
+                "type": "cppdbg",
+                "request": "launch",
+                "program": "${workspaceFolder}/build/bin/demo",
+                "args": [],
+                "cwd": "${fileDirname}",
+                "preLaunchTask": "Build",
+                "stopAtEntry": false,
+            },
+        ],
+    },
 }
