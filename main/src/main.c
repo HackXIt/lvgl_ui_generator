@@ -4,7 +4,7 @@
  * Created on: Thursday, 1970-01-01 @ 01:00:00
  * Author: HackXIt (<hackxit@gmail.com>)
  * -----
- * Last Modified: Monday, 2023-11-20 @ 03:17:03
+ * Last Modified: Friday, 2024-01-05 @ 00:11:37
  * Modified By:  HackXIt (<hackxit@gmail.com>) @ HACKXIT
  * ----- About the code -----
  * Purpose:
@@ -30,8 +30,8 @@
 #include <pthread.h>
 #include "lv_drv_conf.h"
 #include "lvgl/lvgl.h"
-#include "lvgl/examples/lv_examples.h"
-#include "lvgl/demos/lv_demos.h"
+// #include "lvgl/examples/lv_examples.h"
+// #include "lvgl/demos/lv_demos.h"
 #if USE_SDL
 #define SDL_MAIN_HANDLED /*To fix SDL's "undefined reference to WinMain" issue*/
 #include <SDL2/SDL.h>
@@ -50,6 +50,7 @@
 #include "random_ui.h"
 #include <stdio.h>
 #include <string.h>
+#include "lv_100ask_screenshot.h"
 
 /*********************
  *      DEFINES
@@ -194,7 +195,7 @@ int main(int argc, char **argv)
     char *widget_types_str = NULL;
     int opt;
     char *output_file = NULL;
-    uint8_t *framebuffer = NULL;
+    random_ui_t *random_ui = NULL;
     uint8_t delay_count = 0;
 
     while ((opt = getopt(argc, argv, "w:h:c:t:o:d:")) != -1)
@@ -220,7 +221,7 @@ int main(int argc, char **argv)
             delay_count = atoi(optarg);
             break;
         default:
-            fprintf(stderr, "Usage: %s -w <width> -h <height> -c <widget_count> -t <widget_types>\n", argv[0]);
+            fprintf(stderr, "Usage: %s -w <width> -h <height> -c <widget_count> -t <widget_types> -o <output_file> -d <screenshot_delay>\n", argv[0]);
             return 1;
         }
     }
@@ -248,30 +249,25 @@ int main(int argc, char **argv)
     hal_init();
 
     // Create a randomized UI
-    framebuffer = create_random_ui(width, height, (const char **)widget_types, type_count, widget_count, delay_count);
-
-    // Dump the framebuffer
-    if (framebuffer == NULL)
+    random_ui = create_random_ui(width, height, (const char **)widget_types, type_count, widget_count, delay_count);
+    for(int i = 0; i < widget_count; i++)
     {
-        fprintf(stderr, "Failed to dump framebuffer\n");
-        return 1;
+        printf("Widget [%d]: %s (x1=%u,x2=%u,y1=%u,y2=%u)\n", i, random_ui->elements[i].type, random_ui->elements[i].coords.x1, random_ui->elements[i].coords.x2, random_ui->elements[i].coords.y1, random_ui->elements[i].coords.y2);
     }
 
-    // Write the framebuffer to a file
-    FILE *file = fopen(output_file, "wb");
-    if (!file)
+    lv_img_cf_t cf = LV_IMG_CF_TRUE_COLOR_ALPHA;
+    // Dump the screenshot
+    if (lv_100ask_screenshot_create(random_ui->container, cf, LV_100ASK_SCREENSHOT_SV_JPEG, output_file))
     {
-        perror("Failed to open output file");
-        free(framebuffer);
-        return 1;
+        printf("Screenshot saved to %s\n", output_file);
     }
-
-    // Assuming a fixed resolution and color depth (e.g., 800x600, 32-bit)
-    fwrite(framebuffer, sizeof(uint8_t), height * width * 4, file);
-    fclose(file);
-    free(framebuffer);
-
-    printf("Framebuffer dumped to %s\n", output_file);
+    else
+    {
+        fprintf(stderr, "Failed to save screenshot to %s\n", output_file);
+    }
+    hal_deinit();
+    // Cleanup
+    destroy_random_ui(random_ui);
     return 0;
 
     //  lv_example_switch_1();

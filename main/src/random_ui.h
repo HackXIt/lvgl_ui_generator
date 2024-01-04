@@ -3,7 +3,7 @@
  * Created on: Thursday, 1970-01-01 @ 01:00:00
  * Author: HackXIt (<hackxit@gmail.com>)
  * -----
- * Last Modified: Monday, 2023-11-20 @ 03:38:50
+ * Last Modified: Thursday, 2024-01-04 @ 23:56:23
  * Modified By:  HackXIt (<hackxit@gmail.com>) @ HACKXIT
  * -----
  */
@@ -17,16 +17,43 @@
 #include <stdlib.h>
 #include <time.h>
 #include <unistd.h>
-#if USE_SDL
-#define SDL_MAIN_HANDLED /*To fix SDL's "undefined reference to WinMain" issue*/
-#include <SDL2/SDL.h>
-#include "lv_drivers/sdl/sdl.h"
-#elif USE_X11
-#include "lv_drivers/x11/x11.h"
-#endif
+#include <math.h>
 
-void create_random_widget_flex(lv_obj_t *container, const char **widget_types, int type_count, int widget_count);
-void create_random_widget_grid(lv_obj_t *container, const char **widget_types, int type_count, int widget_count, int num_columns, int num_rows);
-lv_obj_t *create_random_widget(lv_obj_t *container, const char **widget_types, int type_count);
-uint8_t *create_random_ui(int width, int height, const char **widget_types, int type_count, int widget_count, uint8_t delay_count);
+#define MAX_LAYOUT_OPTIONS 2
+#define MAX_FLEX_FLOW_OPTIONS 8
+#define MAX_GRID_ALIGN_OPTIONS 7
+
+typedef struct random_ui_element
+{
+    lv_obj_t *widget;
+    lv_area_t coords;
+    char *type;
+} random_ui_element_t;
+
+typedef struct random_ui
+{
+    int width;
+    int height;
+    const char **widget_types;
+    int type_count;
+    int widget_count;
+    uint8_t delay_count;
+    lv_obj_t *container;
+    random_ui_element_t *elements;
+} random_ui_t;
+
+typedef struct
+{
+    int row;
+    int col;
+} Cell;
+
+void seed_random(void);
+void create_random_layout_flex(random_ui_t *random_ui);
+void shuffleCells(Cell *cells, int count);
+void create_random_layout_grid(random_ui_t *random_ui);
+void write_widget_type(char **widget_type, const char *type);
+lv_obj_t *create_random_widget(lv_obj_t *container, const char **widget_types, int type_count, char **widget_type);
+random_ui_t *create_random_ui(int width, int height, const char **widget_types, int type_count, int widget_count, uint8_t delay_count);
+void destroy_random_ui(random_ui_t *random_ui);
 #endif

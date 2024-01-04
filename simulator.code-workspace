@@ -17,6 +17,15 @@
     },
     // settings.json section
     "settings": {
+        "files.exclude": {
+            "**/.git": true,
+            "**/.svn": true,
+            "**/.hg": true,
+            "**/CVS": true,
+            "**/.DS_Store": true,
+            "**/Thumbs.db": true,
+            "**/.vscode/.history": true
+        },
         "files.trimTrailingWhitespace": true,
         "files.insertFinalNewline": true,
         "files.trimFinalNewlines": true,
@@ -36,7 +45,13 @@
             "functional": "c",
             "tuple": "c",
             "type_traits": "c",
-            "utility": "c"
+            "utility": "c",
+            "string_view": "cpp",
+            "initializer_list": "cpp",
+            "lv_examples.h": "c",
+            "pthread.h": "c",
+            "lv_assert.h": "c",
+            "lv_types.h": "c"
         },
         "makefile.launchConfigurations": [
             {
@@ -84,7 +99,20 @@
                 "type": "cppdbg",
                 "request": "launch",
                 "program": "${workspaceFolder}/build/bin/demo",
-                "args": [],
+                "args": [
+                    "-w",
+                    "400",
+                    "-h",
+                    "300",
+                    "-c",
+                    "1",
+                    "-t",
+                    "button",
+                    "-o",
+                    "/button.jpg",
+                    "-d",
+                    "50"
+                ],
                 "cwd": "${fileDirname}",
                 "preLaunchTask": "Build",
                 "stopAtEntry": false,
