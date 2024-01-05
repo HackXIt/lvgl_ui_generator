@@ -58,7 +58,7 @@ void create_random_layout_flex(random_ui_t *random_ui)
     for (int i = 0; i < random_ui->widget_count; ++i)
     {
         random_ui->elements[i].widget = create_random_widget(random_ui->container, random_ui->widget_types, random_ui->type_count, &(random_ui->elements[i].type));
-        lv_obj_get_coords(random_ui->elements[i].widget, &(random_ui->elements[i].coords));
+        get_element_spatial_info(random_ui, &(random_ui->elements[i]));
     }
 }
 
@@ -121,7 +121,7 @@ void create_random_layout_grid(random_ui_t *random_ui)
         // Create the widget
         random_ui->elements[i].widget = create_random_widget(random_ui->container, random_ui->widget_types, random_ui->type_count, &(random_ui->elements[i].type));
         lv_obj_set_grid_cell(random_ui->elements[i].widget, align_x, cells[i].row, 1, align_y, cells[i].col, 1);
-        lv_obj_get_coords(random_ui->elements[i].widget, &(random_ui->elements[i].coords));
+        get_element_spatial_info(random_ui, &(random_ui->elements[i]));
     }
     free(grid_placements);
     free(cells);
@@ -176,6 +176,41 @@ lv_obj_t *create_random_widget(lv_obj_t *container, const char **widget_types, i
         write_widget_type(widget_type, "lv_bar");
     }
     return widget;
+}
+
+void get_element_spatial_info(random_ui_t *random_ui, random_ui_element_t *element)
+{
+    lv_task_handler();
+    lv_obj_update_layout(random_ui->container);
+    lv_area_t container_coords;
+    lv_obj_get_coords(random_ui->container, &container_coords);
+    lv_obj_get_coords(element->widget, &(element->coords));
+    element->width = lv_obj_get_width(element->widget);
+    element->height = lv_obj_get_height(element->widget);
+    element->rel_pos.x1 = lv_obj_get_x(element->widget);
+    element->rel_pos.y1 = lv_obj_get_y(element->widget);
+    element->rel_pos.x2 = lv_obj_get_x2(element->widget);
+    element->rel_pos.y2 = lv_obj_get_y2(element->widget);
+    element->calc_rel_pos.x1 = element->coords.x1 - container_coords.x1;
+    element->calc_rel_pos.y1 = element->coords.y1 - container_coords.y1;
+    element->calc_rel_pos.x2 = element->coords.x2 - container_coords.x1;
+    element->calc_rel_pos.y2 = element->coords.y2 - container_coords.y1;
+    element->content_width = lv_obj_get_content_width(element->widget);
+    element->content_height = lv_obj_get_content_height(element->widget);
+    printf("Widget: %s\tcontainer(x1:%d,y1:%d,x2:%d,y2:%d) widget(x1:%d,y1:%d,x2:%d,y2:%d) widget_calc(x1:%d,y1:%d,x2:%d,y2:%d)\n",
+           element->type,
+           container_coords.x1,
+           container_coords.y1,
+           container_coords.x2,
+           container_coords.y2,
+           element->coords.x1,
+           element->coords.y1,
+           element->coords.x2,
+           element->coords.y2,
+           element->calc_rel_pos.x1,
+           element->calc_rel_pos.y1,
+           element->calc_rel_pos.x2,
+           element->calc_rel_pos.y2);
 }
 
 random_ui_t *create_random_ui(int width, int height, const char **widget_types, int type_count, int widget_count, uint8_t delay_count)

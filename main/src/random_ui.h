@@ -23,10 +23,24 @@
 #define MAX_FLEX_FLOW_OPTIONS 8
 #define MAX_GRID_ALIGN_OPTIONS 7
 
+typedef struct relative_position
+{
+    int x1;
+    int y1;
+    int x2;
+    int y2;
+} rel_pos_t;
+
 typedef struct random_ui_element
 {
     lv_obj_t *widget;
     lv_area_t coords;
+    rel_pos_t rel_pos;
+    rel_pos_t calc_rel_pos;
+    int width;
+    int content_width;
+    int height;
+    int content_height;
     char *type;
 } random_ui_element_t;
 
@@ -54,6 +68,7 @@ void shuffleCells(Cell *cells, int count);
 void create_random_layout_grid(random_ui_t *random_ui);
 void write_widget_type(char **widget_type, const char *type);
 lv_obj_t *create_random_widget(lv_obj_t *container, const char **widget_types, int type_count, char **widget_type);
+void get_element_spatial_info(random_ui_t *random_ui, random_ui_element_t *element);
 random_ui_t *create_random_ui(int width, int height, const char **widget_types, int type_count, int widget_count, uint8_t delay_count);
 void destroy_random_ui(random_ui_t *random_ui);
 #endif
