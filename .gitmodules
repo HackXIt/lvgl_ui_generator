@@ -4,3 +4,6 @@
 [submodule "lvgl"]
 	path = lvgl
 	url = https://github.com/lvgl/lvgl.git
+[submodule "lvgl_ui_generator"]
+	path = lvgl_ui_generator
+	url = git@github.com:HackXIt/lvgl_ui_generator.git
