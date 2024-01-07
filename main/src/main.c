@@ -252,11 +252,12 @@ int main(int argc, char **argv)
     random_ui = create_random_ui(width, height, (const char **)widget_types, type_count, widget_count, delay_count);
     for (int i = 0; i < widget_count; i++)
     {
-        printf("Widget [%d]: %s coords:(x1=%u,x2=%u,y1=%u,y2=%u) rel_pos:(x1=%u,x2=%u,y1=%u,y2=%u) size:(w=%u,h=%u) content:(w=%u,h=%u) calc_rel_pos:(x1=%u,x2=%u,y1=%u,y2=%u)\n", i, random_ui->elements[i].type,
+        // FIXME These coordinates are bullshit for my desired output
+        printf("Widget [%d]: %s coords:(x1=%u,x2=%u,y1=%u,y2=%u) size:(w=%u,h=%u) content:(w=%u,h=%u) rel_coords:(x1=%u,x2=%u,y1=%u,y2=%u)\n", i, random_ui->elements[i].type,
                random_ui->elements[i].coords.x1, random_ui->elements[i].coords.x2, random_ui->elements[i].coords.y1, random_ui->elements[i].coords.y2,
-               random_ui->elements[i].rel_pos.x1, random_ui->elements[i].rel_pos.x2, random_ui->elements[i].rel_pos.y1, random_ui->elements[i].rel_pos.y2,
                random_ui->elements[i].width, random_ui->elements[i].height,
-               random_ui->elements[i].content_width, random_ui->elements[i].content_height);
+               random_ui->elements[i].content_width, random_ui->elements[i].content_height,
+               random_ui->elements[i].rel_coords.x1, random_ui->elements[i].rel_coords.x2, random_ui->elements[i].rel_coords.y1, random_ui->elements[i].rel_coords.y2);
     }
 
     lv_img_cf_t cf = LV_IMG_CF_TRUE_COLOR_ALPHA;
@@ -280,14 +281,15 @@ int main(int argc, char **argv)
         return 1;
     }
 
+    // FIXME These coordinates are bullshit for my desired output
     // Write a line to the file (YOLO annotation format: <class> <x_center> <y_center> <width> <height>)
     for (int i = 0; i < widget_count; i++)
     {
-        int calc_width = random_ui->elements[i].coords.x2 - random_ui->elements[i].coords.x1;
-        int calc_height = random_ui->elements[i].coords.y2 - random_ui->elements[i].coords.y1;
-        int x_center = random_ui->elements[i].coords.x1 + random_ui->elements[i].width / 2;
-        int y_center = random_ui->elements[i].coords.y1 + random_ui->elements[i].height / 2;
-        printf("Widget [%d]: %s (x_center=%u,y_center=%u,width=%u,height=%u,calc_width=%u, calc_height=%u)\n", i, random_ui->elements[i].type, x_center, y_center, random_ui->elements[i].width, random_ui->elements[i].height, calc_width, calc_height);
+        int x_center = random_ui->elements[i].rel_coords.x1 + random_ui->elements[i].width / 2;
+        int y_center = random_ui->elements[i].rel_coords.y1 + random_ui->elements[i].height / 2;
+        int adjusted_width = random_ui->elements[i].width + 2;
+        int adjusted_height = random_ui->elements[i].height + 2;
+        printf("YOLO [%u]: %s (x_center=%u,y_center=%u,width=%u,height=%u)\n", i, random_ui->elements[i].type, x_center, y_center, random_ui->elements[i].width, random_ui->elements[i].height);
         fprintf(annotation_file, "%s %u %u %u %u\n", random_ui->elements[i].type, x_center, y_center, random_ui->elements[i].width, random_ui->elements[i].height);
     }
 

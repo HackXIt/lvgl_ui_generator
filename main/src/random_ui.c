@@ -180,6 +180,7 @@ lv_obj_t *create_random_widget(lv_obj_t *container, const char **widget_types, i
 
 void get_element_spatial_info(random_ui_t *random_ui, random_ui_element_t *element)
 {
+    // FIXME These coordinates are bullshit for my desired output
     lv_task_handler();
     lv_obj_update_layout(random_ui->container);
     lv_area_t container_coords;
@@ -187,17 +188,13 @@ void get_element_spatial_info(random_ui_t *random_ui, random_ui_element_t *eleme
     lv_obj_get_coords(element->widget, &(element->coords));
     element->width = lv_obj_get_width(element->widget);
     element->height = lv_obj_get_height(element->widget);
-    element->rel_pos.x1 = lv_obj_get_x(element->widget);
-    element->rel_pos.y1 = lv_obj_get_y(element->widget);
-    element->rel_pos.x2 = lv_obj_get_x2(element->widget);
-    element->rel_pos.y2 = lv_obj_get_y2(element->widget);
-    element->calc_rel_pos.x1 = element->coords.x1 - container_coords.x1;
-    element->calc_rel_pos.y1 = element->coords.y1 - container_coords.y1;
-    element->calc_rel_pos.x2 = element->coords.x2 - container_coords.x1;
-    element->calc_rel_pos.y2 = element->coords.y2 - container_coords.y1;
+    element->rel_coords.x1 = element->coords.x1 - container_coords.x1; // left corner
+    element->rel_coords.y1 = element->coords.y1 - container_coords.y1; // Top corner
+    element->rel_coords.x2 = element->coords.x1 + element->width;      // right corner
+    element->rel_coords.y2 = element->coords.y1 + element->height;     // bottom corner
     element->content_width = lv_obj_get_content_width(element->widget);
     element->content_height = lv_obj_get_content_height(element->widget);
-    printf("Widget: %s\tcontainer(x1:%d,y1:%d,x2:%d,y2:%d) widget(x1:%d,y1:%d,x2:%d,y2:%d) widget_calc(x1:%d,y1:%d,x2:%d,y2:%d)\n",
+    printf("Widget: %s\tcontainer(x1:%d,y1:%d,x2:%d,y2:%d) widget(x1:%d,y1:%d,x2:%d,y2:%d) size(w:%d,h:%d) widget_calc(x:%d,y:%d,w:%d,h:%d)\n",
            element->type,
            container_coords.x1,
            container_coords.y1,
@@ -207,10 +204,12 @@ void get_element_spatial_info(random_ui_t *random_ui, random_ui_element_t *eleme
            element->coords.y1,
            element->coords.x2,
            element->coords.y2,
-           element->calc_rel_pos.x1,
-           element->calc_rel_pos.y1,
-           element->calc_rel_pos.x2,
-           element->calc_rel_pos.y2);
+           element->width,
+           element->height,
+           element->rel_coords.x1,
+           element->rel_coords.y1,
+           element->rel_coords.x2,
+           element->rel_coords.y2);
 }
 
 random_ui_t *create_random_ui(int width, int height, const char **widget_types, int type_count, int widget_count, uint8_t delay_count)
@@ -228,6 +227,8 @@ random_ui_t *create_random_ui(int width, int height, const char **widget_types, 
     // Seed the random number generator with a more fine-grained time
     seed_random();
     random_ui->container = lv_obj_create(lv_scr_act());
+    // FIXME tested to get rid of container, but doesn't make the spatial_info any better
+    // random_ui->container = lv_scr_act();
     lv_obj_set_size(random_ui->container, width, height);
     lv_obj_set_scrollbar_mode(random_ui->container, LV_SCROLLBAR_MODE_OFF);
     lv_obj_center(random_ui->container);

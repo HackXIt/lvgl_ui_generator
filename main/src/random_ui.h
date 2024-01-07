@@ -23,24 +23,23 @@
 #define MAX_FLEX_FLOW_OPTIONS 8
 #define MAX_GRID_ALIGN_OPTIONS 7
 
-typedef struct relative_position
+typedef struct coords
 {
     int x1;
     int y1;
     int x2;
     int y2;
-} rel_pos_t;
+} coords_t;
 
 typedef struct random_ui_element
 {
     lv_obj_t *widget;
     lv_area_t coords;
-    rel_pos_t rel_pos;
-    rel_pos_t calc_rel_pos;
     int width;
     int content_width;
     int height;
     int content_height;
+    coords_t rel_coords;
     char *type;
 } random_ui_element_t;
 
