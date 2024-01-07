@@ -212,7 +212,7 @@ void get_element_spatial_info(random_ui_t *random_ui, random_ui_element_t *eleme
            element->rel_coords.y2);
 }
 
-random_ui_t *create_random_ui(int width, int height, const char **widget_types, int type_count, int widget_count, uint8_t delay_count)
+random_ui_t *create_random_ui(int width, int height, const char **widget_types, int type_count, int widget_count, uint8_t delay_count, const char *layout)
 {
     // FIXME Not checking for NULL return values from calloc
     // FIXME Not verifying numeric parameters (e.g. width > 0, height > 0, etc.)
@@ -223,6 +223,7 @@ random_ui_t *create_random_ui(int width, int height, const char **widget_types, 
     random_ui->type_count = type_count;
     random_ui->widget_count = widget_count;
     random_ui->delay_count = delay_count;
+    random_ui->layout = layout;
     random_ui->elements = calloc(widget_count, sizeof(random_ui_element_t));
     // Seed the random number generator with a more fine-grained time
     seed_random();
@@ -234,14 +235,35 @@ random_ui_t *create_random_ui(int width, int height, const char **widget_types, 
     lv_obj_center(random_ui->container);
 
     // Randomly choose between Flex and Grid layouts
-    switch (rand() % MAX_LAYOUT_OPTIONS)
+    if (strcmp(layout, "flex") == 0)
     {
-    case 0:
         create_random_layout_flex(random_ui);
-        break;
-    case 1:
+    }
+    else if (strcmp(layout, "grid") == 0)
+    {
         create_random_layout_grid(random_ui);
-        break;
+    }
+    else if (strcmp(layout, "none") == 0)
+    {
+        for (int i = 0; i < random_ui->widget_count; ++i)
+        {
+            random_ui->elements[i].widget = create_random_widget(random_ui->container, random_ui->widget_types, random_ui->type_count, &(random_ui->elements[i].type));
+            // Calculate the maximum x and y positions to ensure the widget fits within the container
+            int max_x = width - random_ui->elements[i].width;
+            int max_y = height - random_ui->elements[i].height;
+
+            // Set the position of the widget randomly within the maximum x and y positions
+            int x = rand() % max_x;
+            int y = rand() % max_y;
+            lv_obj_set_pos(random_ui->elements[i].widget, x, y);
+            // Update the spatial information of the element
+            get_element_spatial_info(random_ui, &(random_ui->elements[i]));
+        }
+    }
+    else
+    {
+        printf("Invalid layout option: %s\n", layout);
+        exit(1);
     }
 
     // Trigger a render to ensure the framebuffer is updated

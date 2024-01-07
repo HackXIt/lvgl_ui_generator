@@ -192,13 +192,14 @@ int main(int argc, char **argv)
     //(void)argc; /*Unused*/
     //(void)argv; /*Unused*/
     int width = 0, height = 0, widget_count = 0;
+    char *layout = NULL;
     char *widget_types_str = NULL;
     int opt;
     char *output_file = NULL;
     random_ui_t *random_ui = NULL;
     uint8_t delay_count = 0;
 
-    while ((opt = getopt(argc, argv, "w:h:c:t:o:d:")) != -1)
+    while ((opt = getopt(argc, argv, "w:h:c:t:o:d:l:")) != -1)
     {
         switch (opt)
         {
@@ -220,8 +221,11 @@ int main(int argc, char **argv)
         case 'd':
             delay_count = atoi(optarg);
             break;
+        case 'l':
+            layout = optarg;
+            break;
         default:
-            fprintf(stderr, "Usage: %s -w <width> -h <height> -c <widget_count> -t <widget_types> -o <output_file> -d <screenshot_delay>\n", argv[0]);
+            fprintf(stderr, "Usage: %s -w <width> -h <height> -c <widget_count> -t <widget_types> -l <layout_option> -o <output_file> -d <screenshot_delay>\n", argv[0]);
             return 1;
         }
     }
@@ -249,7 +253,7 @@ int main(int argc, char **argv)
     hal_init();
 
     // Create a randomized UI
-    random_ui = create_random_ui(width, height, (const char **)widget_types, type_count, widget_count, delay_count);
+    random_ui = create_random_ui(width, height, (const char **)widget_types, type_count, widget_count, delay_count, layout);
     for (int i = 0; i < widget_count; i++)
     {
         // FIXME These coordinates are bullshit for my desired output
