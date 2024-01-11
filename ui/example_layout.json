@@ -1,0 +1,44 @@
+{
+    "rootStyle": {
+        "backgroundColor": "#FFFFFF",
+        "textColor": "#000000"
+    },
+    "portions": [
+        {
+            "id": "header",
+            "style": {
+                "backgroundColor": "#EEEEEE",
+                "textColor": "#333333",
+                "height": "50px"
+            },
+            "widgets": [
+                "label",
+                "button"
+            ]
+        },
+        {
+            "id": "main",
+            "style": {
+                "backgroundColor": "#FFFFFF",
+                "inherit": "true"
+            },
+            "widgets": [
+                "chart",
+                "table",
+                "list"
+            ]
+        },
+        {
+            "id": "footer",
+            "style": {
+                "backgroundColor": "#DDDDDD",
+                "textColor": "#222222",
+                "height": "30px"
+            },
+            "widgets": [
+                "statusBar",
+                "slider"
+            ]
+        }
+    ]
+}
