@@ -42,7 +42,7 @@ DEFINES				:= -D SIMULATOR=1 -D LV_BUILD_TEST=0 -D $(LV_DRIVER_USE)
 
 # Include simulator inc folder first so lv_conf.h from custom UI can be used instead
 INC 				:= -I./ui/simulator/inc/ -I./ -I./lvgl/ #-I/usr/include/freetype2 -L/usr/local/lib
-LDLIBS	 			:= -l$(LV_DRIVER) -lpthread -lm #-lfreetype -lavformat -lavcodec -lavutil -lswscale -lm -lz
+LDLIBS	 			:= -l$(LV_DRIVER) -lpthread -lm -ljansson #-lfreetype -lavformat -lavcodec -lavutil -lswscale -lm -lz
 BIN 				:= $(BIN_DIR)/demo
 
 COMPILE				= $(CC) $(CFLAGS) $(INC) $(DEFINES)
