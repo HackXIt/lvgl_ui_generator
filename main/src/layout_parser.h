@@ -36,4 +36,7 @@ void free_layout(Layout *layout);
 Style parse_style(json_t *json_style);
 void free_style(Style *style);
 
+// Function to create and arrange widgets based on the layout
+void create_lvgl_widgets_from_layout(const Layout *layout);
+
 #endif // LAYOUT_PARSER_H

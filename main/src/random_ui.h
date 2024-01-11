@@ -1,13 +1,3 @@
-/*
- * File: random_ui.h
- * Created on: Thursday, 1970-01-01 @ 01:00:00
- * Author: HackXIt (<hackxit@gmail.com>)
- * -----
- * Last Modified: Thursday, 2024-01-04 @ 23:56:23
- * Modified By:  HackXIt (<hackxit@gmail.com>) @ HACKXIT
- * -----
- */
-
 #ifndef RANDOM_UI_H
 #define RANDOM_UI_H
 #include "lv_drv_conf.h"
@@ -18,6 +8,7 @@
 #include <time.h>
 #include <unistd.h>
 #include <math.h>
+#include "layout_parser.h"
 
 #define MAX_LAYOUT_OPTIONS 2
 #define MAX_FLEX_FLOW_OPTIONS 8
@@ -67,6 +58,7 @@ void create_random_layout_flex(random_ui_t *random_ui);
 void shuffleCells(Cell *cells, int count);
 void create_random_layout_grid(random_ui_t *random_ui);
 void write_widget_type(char **widget_type, const char *type);
+lv_obj_t *create_widget(const char *type, lv_obj_t *parent);
 lv_obj_t *create_random_widget(lv_obj_t *container, const char **widget_types, int type_count, char **widget_type);
 void get_element_spatial_info(random_ui_t *random_ui, random_ui_element_t *element);
 random_ui_t *create_random_ui(int width, int height, const char **widget_types, int type_count, int widget_count, uint8_t delay_count, const char *layout);

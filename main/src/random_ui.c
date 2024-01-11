@@ -1,20 +1,3 @@
-/*
- * File: random_ui.c
- * Created on: Thursday, 1970-01-01 @ 01:00:00
- * Author: HackXIt (<hackxit@gmail.com>)
- * -----
- * Last Modified: Friday, 2024-01-05 @ 00:02:12
- * Modified By:  HackXIt (<hackxit@gmail.com>) @ HACKXIT
- * ----- About the code -----
- * Purpose:
- *
- * Example call:
- *
- * Example Output:
- *
- * References:
- */
-
 #include "random_ui.h"
 
 void seed_random(void)
@@ -131,6 +114,11 @@ void write_widget_type(char **widget_type, const char *type)
 {
     *widget_type = calloc(strlen(type) + 1, sizeof(char));
     strcpy(*widget_type, type);
+}
+
+lv_obj_t *create_widget(const char *type, lv_obj_t *parent)
+{
+    // Logic to create a widget of the specified type
 }
 
 lv_obj_t *create_random_widget(lv_obj_t *container, const char **widget_types, int type_count, char **widget_type)
@@ -292,4 +280,26 @@ void destroy_random_ui(random_ui_t *random_ui)
     lv_obj_del(random_ui->container);
     free(random_ui->elements);
     free(random_ui);
+}
+
+// New function to create widgets based on the layout
+void create_widgets_according_to_layout(Layout *layout)
+{
+    // Iterate through the portions in the layout
+    for (size_t i = 0; i < layout->portion_count; i++)
+    {
+        Portion portion = layout->portions[i];
+
+        // Create widgets for this portion
+        for (size_t j = 0; j < portion.widget_count; j++)
+        {
+            // Create widget based on the type defined in the layout
+            lv_obj_t *widget = create_random_widget_based_on_type(portion.widgets[j]);
+            if (widget)
+            {
+                apply_style_to_widget(widget, &portion.style);
+                // Position the widget within the portion's area
+            }
+        }
+    }
 }
