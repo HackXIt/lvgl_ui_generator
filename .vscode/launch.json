@@ -1,0 +1,28 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug LVGL demo with gdb",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/demo",
+            "args": [
+                "-w",
+                "400",
+                "-h",
+                "300",
+                "-c",
+                "1",
+                "-t",
+                "button",
+                "-o",
+                "/button.jpg",
+                "-d",
+                "50"
+            ],
+            "cwd": "${fileDirname}",
+            "preLaunchTask": "Build",
+            "stopAtEntry": false,
+        },
+    ],
+}

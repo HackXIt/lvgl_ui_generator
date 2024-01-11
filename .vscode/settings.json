@@ -1,0 +1,45 @@
+{
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true,
+        "**/.vscode/.history": true
+    },
+    "files.trimTrailingWhitespace": true,
+    "files.insertFinalNewline": true,
+    "files.trimFinalNewlines": true,
+    "cmake.configureOnOpen": false,
+    "files.associations": {
+        "lv_demos.h": "c",
+        "lvgl.h": "c",
+        "lv_drv_conf.h": "c",
+        "stdlib.h": "c",
+        "xlib.h": "c",
+        "lv_hal.h": "c",
+        "lv_obj.h": "c",
+        "x11.h": "c",
+        "xutil.h": "c",
+        "array": "c",
+        "compare": "c",
+        "functional": "c",
+        "tuple": "c",
+        "type_traits": "c",
+        "utility": "c",
+        "string_view": "cpp",
+        "initializer_list": "cpp",
+        "lv_examples.h": "c",
+        "pthread.h": "c",
+        "lv_assert.h": "c",
+        "lv_types.h": "c"
+    },
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/mnt/c/Users/rini/DATA/#Git-Stash/lv_port_pc_vscode/build/bin",
+            "binaryPath": "/mnt/c/Users/rini/DATA/#Git-Stash/lv_port_pc_vscode/build/bin/demo",
+            "binaryArgs": []
+        }
+    ],
+}

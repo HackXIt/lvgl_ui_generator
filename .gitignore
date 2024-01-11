@@ -1,5 +1,5 @@
 # IDE specific
-.vscode/.history/
+.vscode/.history/**
 test*.*
 
 # Ignore build folder
