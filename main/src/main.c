@@ -291,8 +291,6 @@ int main(int argc, char **argv)
     {
         int x_center = random_ui->elements[i].rel_coords.x1 + random_ui->elements[i].width / 2;
         int y_center = random_ui->elements[i].rel_coords.y1 + random_ui->elements[i].height / 2;
-        int adjusted_width = random_ui->elements[i].width + 2;
-        int adjusted_height = random_ui->elements[i].height + 2;
         printf("YOLO [%u]: %s (x_center=%u,y_center=%u,width=%u,height=%u)\n", i, random_ui->elements[i].type, x_center, y_center, random_ui->elements[i].width, random_ui->elements[i].height);
         fprintf(annotation_file, "%s %u %u %u %u\n", random_ui->elements[i].type, x_center, y_center, random_ui->elements[i].width, random_ui->elements[i].height);
     }
