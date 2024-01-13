@@ -1,15 +1,18 @@
 {
     "rootStyle": {
-        "backgroundColor": "#FFFFFF",
-        "textColor": "#000000"
+        // Global style properties...
     },
     "portions": [
         {
             "id": "header",
+            "layout": "flex",
+            "flex_properties": {
+                "align": "center",
+                "justify_content": "space_between"
+                // Other flex-related properties...
+            },
             "style": {
-                "backgroundColor": "#EEEEEE",
-                "textColor": "#333333",
-                "height": "50px"
+                // Style definitions...
             },
             "widgets": [
                 "label",
@@ -18,9 +21,15 @@
         },
         {
             "id": "main",
+            "layout": "grid",
+            "grid_properties": {
+                "rows": "auto-fill",
+                "columns": "2",
+                "gap": "5px"
+                // Other grid-related properties...
+            },
             "style": {
-                "backgroundColor": "#FFFFFF",
-                "inherit": "true"
+                // Style definitions...
             },
             "widgets": [
                 "chart",
@@ -30,15 +39,22 @@
         },
         {
             "id": "footer",
+            "layout": "absolute",
+            "position": {
+                "x": "10px",
+                "y": "400px"
+            },
+            "size": {
+                "width": "100%",
+                "height": "50px"
+            },
             "style": {
-                "backgroundColor": "#DDDDDD",
-                "textColor": "#222222",
-                "height": "30px"
+                // Style definitions...
             },
             "widgets": [
-                "statusBar",
-                "slider"
+                "statusBar"
             ]
         }
+        // Other portions...
     ]
 }
