@@ -1,19 +1,6 @@
 #include "design_parser.h"
-// ... other includes ...
 
-// Function to parse a portion
-Portion *parse_portion(json_t *json_portion)
-{
-    // Allocate a new Portion and parse its contents from json_portion
-    // Call other parsing functions for specialized keys like layout and style
-}
-
-// Function to parse layout type
-void parse_layout_type(Portion *portion, json_t *json_layout)
-{
-    // Parse the layout type and set the portion's layout_type accordingly
-}
-
+#pragma region STYLE
 // https://stackoverflow.com/a/69812981
 // Jenkins OAAT (one at a time) hash function
 // NOTE it's not great, but does the job for my purpose I think and is easy to add here
@@ -54,15 +41,17 @@ StylePropertyIndex get_style_property_index(const char *prop_name)
 }
 
 // Function to parse style
-void parse_style(Style *style, json_t *json_style)
+Style *parse_style(json_t *json_style)
 {
-    if (!json_style || !style)
+    if (!json_style)
     {
         return; // Handle null pointers
     }
 
+    Style *style = calloc(1, sizeof(Style));
+
     // Initialize lv_style_t object
-    lv_style_t *lv_style = malloc(sizeof(lv_style_t));
+    lv_style_t *lv_style = calloc(1, sizeof(lv_style_t));
     lv_style_init(lv_style);
 
     const char *key;
@@ -93,10 +82,400 @@ void parse_style(Style *style, json_t *json_style)
             break;
         }
     }
+    return style;
+}
+#pragma endregion STYLE
 
-    style->lv_style = lv_style;
+#pragma region PORTION
+
+/* NOTE Flex alignments
+typedef enum {
+    LV_FLEX_ALIGN_START,
+    LV_FLEX_ALIGN_CENTER,
+    LV_FLEX_ALIGN_END,
+    LV_FLEX_ALIGN_BASELINE,
+    LV_FLEX_ALIGN_STRETCH,
+    LV_FLEX_ALIGN_AUTO,
+} lv_flex_align_t;
+*/
+lv_flex_align_t get_flex_align(const char *align)
+{
+    if (strcmp(align, "start") == 0)
+    {
+        return LV_FLEX_ALIGN_START;
+    }
+    else if (strcmp(align, "center") == 0)
+    {
+        return LV_FLEX_ALIGN_CENTER;
+    }
+    else if (strcmp(align, "end") == 0)
+    {
+        return LV_FLEX_ALIGN_END;
+    }
+    else if (strcmp(align, "baseline") == 0)
+    {
+        return LV_FLEX_ALIGN_BASELINE;
+    }
+    else if (strcmp(align, "stretch") == 0)
+    {
+        return LV_FLEX_ALIGN_STRETCH;
+    }
+    else if (strcmp(align, "auto") == 0)
+    {
+        return LV_FLEX_ALIGN_AUTO;
+    }
+    return LV_FLEX_ALIGN_START;
 }
 
+/* NOTE Flex flows
+typedef enum {
+    LV_FLEX_FLOW_ROW                 = 0x00,
+    LV_FLEX_FLOW_COLUMN              = _LV_FLEX_COLUMN,
+    LV_FLEX_FLOW_ROW_WRAP            = LV_FLEX_FLOW_ROW | _LV_FLEX_WRAP,
+    LV_FLEX_FLOW_ROW_REVERSE         = LV_FLEX_FLOW_ROW | _LV_FLEX_REVERSE,
+    LV_FLEX_FLOW_ROW_WRAP_REVERSE    = LV_FLEX_FLOW_ROW | _LV_FLEX_WRAP | _LV_FLEX_REVERSE,
+    LV_FLEX_FLOW_COLUMN_WRAP         = LV_FLEX_FLOW_COLUMN | _LV_FLEX_WRAP,
+    LV_FLEX_FLOW_COLUMN_REVERSE      = LV_FLEX_FLOW_COLUMN | _LV_FLEX_REVERSE,
+    LV_FLEX_FLOW_COLUMN_WRAP_REVERSE = LV_FLEX_FLOW_COLUMN | _LV_FLEX_WRAP | _LV_FLEX_REVERSE,
+} lv_flex_flow_t;
+*/
+lv_flex_flow_t get_flex_flow(const char *flow)
+{
+    if (strcmp(flow, "row") == 0)
+    {
+        return LV_FLEX_FLOW_ROW;
+    }
+    else if (strcmp(flow, "column") == 0)
+    {
+        return LV_FLEX_FLOW_COLUMN;
+    }
+    else if (strcmp(flow, "row_wrap") == 0)
+    {
+        return LV_FLEX_FLOW_ROW_WRAP;
+    }
+    else if (strcmp(flow, "column_wrap") == 0)
+    {
+        return LV_FLEX_FLOW_COLUMN_WRAP;
+    }
+    else if (strcmp(flow, "row_reverse") == 0)
+    {
+        return LV_FLEX_FLOW_ROW_REVERSE;
+    }
+    else if (strcmp(flow, "column_reverse") == 0)
+    {
+        return LV_FLEX_FLOW_COLUMN_REVERSE;
+    }
+    else if (strcmp(flow, "row_wrap_reverse") == 0)
+    {
+        return LV_FLEX_FLOW_ROW_WRAP_REVERSE;
+    }
+    else if (strcmp(flow, "column_wrap_reverse") == 0)
+    {
+        return LV_FLEX_FLOW_COLUMN_WRAP_REVERSE;
+    }
+    return LV_FLEX_FLOW_ROW;
+}
+
+void parse_flex_layout(FlexLayoutProps *flex_props, json_t *json_flex_props)
+{
+    if (!flex_props || !json_flex_props)
+        return;
+
+    // Parse flex_flow
+    const char *flex_flow = json_string_value(json_object_get(json_flex_props, "flex_flow"));
+    flex_props->flex_flow = get_flex_flow(flex_flow);
+
+    // Parse main_place (justify-content)
+    const char *main_place = json_string_value(json_object_get(json_flex_props, "main_place"));
+    flex_props->main_place = get_flex_align(main_place);
+
+    // Parse cross_place (align-items)
+    const char *cross_place = json_string_value(json_object_get(json_flex_props, "cross_place"));
+    flex_props->cross_place = get_flex_align(cross_place);
+
+    // Parse track_cross_place (align-content)
+    const char *track_cross_place = json_string_value(json_object_get(json_flex_props, "track_cross_place"));
+    flex_props->track_cross_place = get_flex_align(track_cross_place);
+
+    // Parse grow (flex-grow)
+    flex_props->grow = (uint8_t)json_integer_value(json_object_get(json_flex_props, "grow"));
+}
+
+/* NOTE Grid alignments
+typedef enum {
+    LV_GRID_ALIGN_START,
+    LV_GRID_ALIGN_CENTER,
+    LV_GRID_ALIGN_END,
+    LV_GRID_ALIGN_STRETCH,
+    LV_GRID_ALIGN_SPACE_EVENLY,
+    LV_GRID_ALIGN_SPACE_AROUND,
+    LV_GRID_ALIGN_SPACE_BETWEEN,
+} lv_grid_align_t;
+*/
+lv_grid_align_t get_grid_align(const char *align)
+{
+    if (strcmp(align, "start") == 0)
+    {
+        return LV_GRID_ALIGN_START;
+    }
+    else if (strcmp(align, "center") == 0)
+    {
+        return LV_GRID_ALIGN_CENTER;
+    }
+    else if (strcmp(align, "end") == 0)
+    {
+        return LV_GRID_ALIGN_END;
+    }
+    else if (strcmp(align, "stretch") == 0)
+    {
+        return LV_GRID_ALIGN_STRETCH;
+    }
+    else if (strcmp(align, "space_evenly") == 0)
+    {
+        return LV_GRID_ALIGN_SPACE_EVENLY;
+    }
+    else if (strcmp(align, "space_around") == 0)
+    {
+        return LV_GRID_ALIGN_SPACE_AROUND;
+    }
+    else if (strcmp(align, "space_between") == 0)
+    {
+        return LV_GRID_ALIGN_SPACE_BETWEEN;
+    }
+    return LV_GRID_ALIGN_START;
+}
+
+void parse_grid_layout(GridLayoutProps *grid_props, json_t *json_grid_props)
+{
+    if (!grid_props || !json_grid_props)
+        return;
+
+    // Parse rows and columns as arrays of lv_coord_t values
+    json_t *json_rows = json_object_get(json_grid_props, "rows");
+    json_t *json_cols = json_object_get(json_grid_props, "columns");
+
+    size_t rows_count = json_array_size(json_rows);
+    size_t cols_count = json_array_size(json_cols);
+
+    grid_props->row_dsc = calloc((rows_count + 1), sizeof(lv_coord_t)); // +1 for LV_GRID_TEMPLATE_LAST
+    grid_props->col_dsc = calloc((cols_count + 1), sizeof(lv_coord_t)); // +1 for LV_GRID_TEMPLATE_LAST
+
+    for (size_t i = 0; i < rows_count; i++)
+    {
+        grid_props->row_dsc[i] = (lv_coord_t)json_integer_value(json_array_get(json_rows, i));
+    }
+    grid_props->row_dsc[rows_count] = LV_GRID_TEMPLATE_LAST;
+
+    for (size_t i = 0; i < cols_count; i++)
+    {
+        grid_props->col_dsc[i] = (lv_coord_t)json_integer_value(json_array_get(json_cols, i));
+    }
+    grid_props->col_dsc[cols_count] = LV_GRID_TEMPLATE_LAST;
+
+    // Parse alignment properties
+    const char *align_str = json_string_value(json_object_get(json_grid_props, "cell_align"));
+    grid_props->column_align = get_grid_align(align_str);
+    grid_props->row_align = get_grid_align(align_str);
+
+    // Handle justify_content if needed
+    const char *justify_content_str = json_string_value(json_object_get(json_grid_props, "justify_content"));
+    if (justify_content_str)
+    {
+        grid_props->justify_content = get_grid_align(justify_content_str);
+    }
+}
+
+/* NOTE Absolute alignments
+enum {
+    LV_ALIGN_DEFAULT = 0,
+    LV_ALIGN_TOP_LEFT,
+    LV_ALIGN_TOP_MID,
+    LV_ALIGN_TOP_RIGHT,
+    LV_ALIGN_BOTTOM_LEFT,
+    LV_ALIGN_BOTTOM_MID,
+    LV_ALIGN_BOTTOM_RIGHT,
+    LV_ALIGN_LEFT_MID,
+    LV_ALIGN_RIGHT_MID,
+    LV_ALIGN_CENTER,
+
+    LV_ALIGN_OUT_TOP_LEFT,
+    LV_ALIGN_OUT_TOP_MID,
+    LV_ALIGN_OUT_TOP_RIGHT,
+    LV_ALIGN_OUT_BOTTOM_LEFT,
+    LV_ALIGN_OUT_BOTTOM_MID,
+    LV_ALIGN_OUT_BOTTOM_RIGHT,
+    LV_ALIGN_OUT_LEFT_TOP,
+    LV_ALIGN_OUT_LEFT_MID,
+    LV_ALIGN_OUT_LEFT_BOTTOM,
+    LV_ALIGN_OUT_RIGHT_TOP,
+    LV_ALIGN_OUT_RIGHT_MID,
+    LV_ALIGN_OUT_RIGHT_BOTTOM,
+};
+typedef uint8_t lv_align_t;
+*/
+lv_align_t get_absolute_align(const char *align)
+{
+    if (strcmp(align, "top_left") == 0)
+    {
+        return LV_ALIGN_TOP_LEFT;
+    }
+    else if (strcmp(align, "top_mid") == 0)
+    {
+        return LV_ALIGN_TOP_MID;
+    }
+    else if (strcmp(align, "top_right") == 0)
+    {
+        return LV_ALIGN_TOP_RIGHT;
+    }
+    else if (strcmp(align, "bottom_left") == 0)
+    {
+        return LV_ALIGN_BOTTOM_LEFT;
+    }
+    else if (strcmp(align, "bottom_mid") == 0)
+    {
+        return LV_ALIGN_BOTTOM_MID;
+    }
+    else if (strcmp(align, "bottom_right") == 0)
+    {
+        return LV_ALIGN_BOTTOM_RIGHT;
+    }
+    else if (strcmp(align, "left_mid") == 0)
+    {
+        return LV_ALIGN_LEFT_MID;
+    }
+    else if (strcmp(align, "right_mid") == 0)
+    {
+        return LV_ALIGN_RIGHT_MID;
+    }
+    else if (strcmp(align, "center") == 0)
+    {
+        return LV_ALIGN_CENTER;
+    }
+    else if (strcmp(align, "out_top_left") == 0)
+    {
+        return LV_ALIGN_OUT_TOP_LEFT;
+    }
+    else if (strcmp(align, "out_top_mid") == 0)
+    {
+        return LV_ALIGN_OUT_TOP_MID;
+    }
+    else if (strcmp(align, "out_top_right") == 0)
+    {
+        return LV_ALIGN_OUT_TOP_RIGHT;
+    }
+    else if (strcmp(align, "out_bottom_left") == 0)
+    {
+        return LV_ALIGN_OUT_BOTTOM_LEFT;
+    }
+    else if (strcmp(align, "out_bottom_mid") == 0)
+    {
+        return LV_ALIGN_OUT_BOTTOM_MID;
+    }
+    else if (strcmp(align, "out_bottom_right") == 0)
+    {
+        return LV_ALIGN_OUT_BOTTOM_RIGHT;
+    }
+    else if (strcmp(align, "out_left_top") == 0)
+    {
+        return LV_ALIGN_OUT_LEFT_TOP;
+    }
+    else if (strcmp(align, "out_left_mid") == 0)
+    {
+        return LV_ALIGN_OUT_LEFT_MID;
+    }
+    else if (strcmp(align, "out_left_bottom") == 0)
+    {
+        return LV_ALIGN_OUT_LEFT_BOTTOM;
+    }
+    else if (strcmp(align, "out_right_top") == 0)
+    {
+        return LV_ALIGN_OUT_RIGHT_TOP;
+    }
+    else if (strcmp(align, "out_right_mid") == 0)
+    {
+        return LV_ALIGN_OUT_RIGHT_MID;
+    }
+    else if (strcmp(align, "out_right_bottom") == 0)
+    {
+        return LV_ALIGN_OUT_RIGHT_BOTTOM;
+    }
+    return LV_ALIGN_DEFAULT;
+}
+
+void parse_absolute_layout(AbsoluteLayoutProps *abs_props, json_t *json_abs_props)
+{
+    if (!abs_props || !json_abs_props)
+        return;
+
+    // Parse x and y coordinates
+    abs_props->x = (lv_coord_t)json_integer_value(json_object_get(json_abs_props, "x"));
+    abs_props->y = (lv_coord_t)json_integer_value(json_object_get(json_abs_props, "y"));
+
+    // Parse width and height
+    abs_props->w = (lv_coord_t)json_integer_value(json_object_get(json_abs_props, "w"));
+    abs_props->h = (lv_coord_t)json_integer_value(json_object_get(json_abs_props, "h"));
+
+    // Parse alignment (if applicable)
+    const char *align_str = json_string_value(json_object_get(json_abs_props, "align"));
+    abs_prop->align = get_absolute_align(align_str);
+}
+
+void parse_layout_type(Portion *portion, json_t *json_layout)
+{
+    if (!portion || !json_layout)
+        return;
+
+    const char *layout_type = json_string_value(json_layout);
+    if (strcmp(layout_type, "flex") == 0)
+    {
+        portion->layout_type = LAYOUT_FLEX;
+        parse_flex_layout(&portion->layout_props.flex_props, json_object_get(json_layout, "flex_properties"));
+    }
+    else if (strcmp(layout_type, "grid") == 0)
+    {
+        portion->layout_type = LAYOUT_GRID;
+        parse_grid_layout(&portion->layout_props.grid_props, json_object_get(json_layout, "grid_properties"));
+    }
+    else if (strcmp(layout_type, "absolute") == 0)
+    {
+        portion->layout_type = LAYOUT_ABSOLUTE;
+        parse_absolute_layout(&portion->layout_props.absolute_props, json_object_get(json_layout, "absolute_properties"));
+    }
+}
+
+// Function to parse a portion
+Portion *parse_portion(json_t *json_portion)
+{
+    if (!json_portion)
+        return NULL;
+
+    Portion *portion = calloc(1, sizeof(Portion));
+    if (!portion)
+    {
+        return NULL; // TODO Handle allocation failure
+    }
+
+    // Parse ID
+    portion->id = strdup(json_string_value(json_object_get(json_portion, "id")));
+
+    // Parse layout type
+    json_t *json_layout = json_object_get(json_portion, "layout");
+    parse_layout_type(portion, json_layout);
+
+    // Parse style
+    json_t *json_style = json_object_get(json_portion, "style");
+    if (json_style)
+    {
+        portions->style = parse_style(&portion->style, json_style);
+    }
+
+    portion->next = NULL; // Initialize the next pointer
+    return portion;
+}
+
+#pragma endregion PORTION
+
+#pragma region DESIGN
 // The main parsing function
 Design *parse_design(const char *file_path)
 {
@@ -108,19 +487,18 @@ Design *parse_design(const char *file_path)
         return NULL;
     }
 
-    Design *design = malloc(sizeof(Design));
+    Design *design = calloc(1, sizeof(Design));
     if (!design)
     {
         json_decref(root);
         return NULL;
     }
-    memset(design, 0, sizeof(Design));
 
     // Parse root style
     json_t *json_root_style = json_object_get(root, "rootStyle");
     if (json_root_style)
     {
-        init_style(&design->root, json_root_style);
+        design->root = parse_style(json_root_style);
     }
 
     // Initialize the first portion
@@ -151,45 +529,56 @@ Design *parse_design(const char *file_path)
 
     return design;
 }
+#pragma endregion DESIGN
 
+#pragma region CLEANUP
 // Free function for Style struct
 void free_style(Style *style)
 {
-    if (style)
-    {
-        if (style->lv_style)
-        {
-            lv_style_reset(style->lv_style);
-            free(style->lv_style);
-        }
-        free(style);
-    }
+    if (!style)
+        return;
+
+    lv_style_reset(style->lv_style);
+    free(style->lv_style);
 }
 
 // Free function for Portion struct
 void free_portion(Portion *portion)
 {
-    if (portion)
+    if (!portion)
+        return;
+
+    free(portion->id);
+    free_style(&portion->style);
+
+    // Free additional properties based on layout
+    if (portion->layout_type == LAYOUT_GRID)
     {
-        free_style(portion->style);
+        free(portion->layout_props.grid_props.col_dsc);
+        free(portion->layout_props.grid_props.row_dsc);
     }
+
+    // Free the next portion in the list
+    if (portion->next)
+    {
+        free_portion(portion->next);
+    }
+
+    free(portion);
 }
 
 // Free function for Design struct
 void free_design(Design *design)
 {
-    if (design)
+    if (!design)
+        return;
+
+    free_style(&design->root);
+    if (design->first_portion)
     {
-        free_style(&design->root);
-
-        Portion *current_portion = design->first_portion;
-        while (current_portion)
-        {
-            Portion *next_portion = current_portion->next;
-            free_portion(current_portion);
-            current_portion = next_portion;
-        }
-
-        free(design);
+        free_portion(design->first_portion);
     }
+
+    free(design);
 }
+#pragma endregion CLEANUP

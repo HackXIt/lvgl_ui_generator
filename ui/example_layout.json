@@ -23,10 +23,16 @@
             "id": "main",
             "layout": "grid",
             "grid_properties": {
-                "rows": "auto-fill",
-                "columns": "2",
-                "gap": "5px"
-                // Other grid-related properties...
+                "rows": [
+                    "100",
+                    "10"
+                ],
+                "columns": [
+                    "100",
+                    "100"
+                ],
+                "cell_align": "center",
+                "justify_content": "space_between"
             },
             "style": {
                 // Style definitions...
