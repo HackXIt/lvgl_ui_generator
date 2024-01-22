@@ -17,6 +17,7 @@ typedef enum
     STYLE_PROP_HEIGHT,
     STYLE_PROP_BG_COLOR,
     // ... other style property indexes ...
+    STYLE_PROP_UNKNOWN
 } StylePropertyIndex;
 
 typedef struct Style
@@ -24,21 +25,24 @@ typedef struct Style
     lv_style_t *lv_style; // LVGL style object
     bool inherit;         // Flag for inheritance
 } Style;
+StylePropertyIndex get_style_property_index(const char *prop_name);
+Style *parse_style(json_t *json_style);
 
-void parse_style(Style *style, json_t *json_style);
 #pragma endregion STYLE
 
 #pragma region PORTION
 
 typedef struct
 {
-    lv_coord_t x;
-    lv_coord_t y;
-    lv_coord_t w;
-    lv_coord_t h;
-    lv_align_t align;
-} AbsoluteLayoutProps;
-void parse_absolute_layout(AbsoluteLayoutProps *abs_props, json_t *json_abs_props);
+    lv_flex_flow_t flex_flow;          // Represents the flex flow (row, column, wrap, etc.)
+    lv_flex_align_t main_place;        // Alignment in the main direction (justify-content in CSS)
+    lv_flex_align_t cross_place;       // Alignment in the cross direction (align-items in CSS)
+    lv_flex_align_t track_cross_place; // Alignment of tracks (align-content in CSS)
+    uint8_t grow;                      // Flex grow property for children
+} FlexLayoutProps;
+lv_flex_align_t get_flex_align(const char *align);
+lv_flex_flow_t get_flex_flow(const char *flow);
+void parse_flex_layout(FlexLayoutProps *flex_props, json_t *json_flex_props);
 
 typedef struct
 {
@@ -50,17 +54,19 @@ typedef struct
     lv_coord_t *col_dsc; // Placeholder for column descriptors array
     lv_coord_t *row_dsc; // Placeholder for row descriptors array
 } GridLayoutProps;
+lv_grid_align_t get_grid_align(const char *align);
 void parse_grid_layout(GridLayoutProps *grid_props, json_t *json_grid_props);
 
 typedef struct
 {
-    lv_flex_flow_t flex_flow;          // Represents the flex flow (row, column, wrap, etc.)
-    lv_flex_align_t main_place;        // Alignment in the main direction (justify-content in CSS)
-    lv_flex_align_t cross_place;       // Alignment in the cross direction (align-items in CSS)
-    lv_flex_align_t track_cross_place; // Alignment of tracks (align-content in CSS)
-    uint8_t grow;                      // Flex grow property for children
-} FlexLayoutProps;
-void parse_flex_layout(FlexLayoutProps *flex_props, json_t *json_flex_props);
+    lv_coord_t x;
+    lv_coord_t y;
+    lv_coord_t w;
+    lv_coord_t h;
+    lv_align_t align;
+} AbsoluteLayoutProps;
+lv_align_t get_absolute_align(const char *align);
+void parse_absolute_layout(AbsoluteLayoutProps *abs_props, json_t *json_abs_props);
 
 typedef enum
 {
@@ -79,7 +85,7 @@ typedef struct Portion
         GridLayoutProps grid_props; // Actual LVGL grid layout properties
         AbsoluteLayoutProps absolute_props;
     } layout_props;
-    Style style;
+    Style *style;
     struct Portion *next; // Next portion in a linked list
 } Portion;
 
@@ -90,7 +96,7 @@ Portion *parse_portion(json_t *json_portion);
 #pragma region DESIGN
 typedef struct Design
 {
-    Style root;             // The root style
+    Style *root;            // The root style
     Portion *first_portion; // First portion in a linked list
 } Design;
 

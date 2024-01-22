@@ -1,43 +1,27 @@
 #include "design_parser.h"
 
 #pragma region STYLE
-// https://stackoverflow.com/a/69812981
-// Jenkins OAAT (one at a time) hash function
-// NOTE it's not great, but does the job for my purpose I think and is easy to add here
-uint32_t hash(const char *str)
-{
-    uint32_t hash, i;
-    for (hash = i = 0; str[i] != '\0'; ++i)
-    {
-        hash += str[i];
-        hash += (hash << 10);
-        hash ^= (hash >> 6);
-    }
-    hash += (hash << 3);
-    hash ^= (hash >> 11);
-    hash += (hash << 15);
-    return hash;
-}
-
-unsigned int style_property_hashes[STYLE_PROP_MAX] = {
-    hash("inherit"),
-    hash("width"),
-    hash("height"),
-    hash("bg_color"),
-    // ... other hashed property names ...
-};
 
 StylePropertyIndex get_style_property_index(const char *prop_name)
 {
-    unsigned int hash_value = hash(prop_name);
-    for (int i = 0; i < STYLE_PROP_MAX; i++)
+    if (strcmp(prop_name, "inherit") == 0)
     {
-        if (style_property_hashes[i] == hash_value)
-        {
-            return (StylePropertyIndex)i;
-        }
+        return STYLE_PROP_INHERIT;
     }
-    return -1; // Invalid index
+    else if (strcmp(prop_name, "width") == 0)
+    {
+        return STYLE_PROP_WIDTH;
+    }
+    else if (strcmp(prop_name, "height") == 0)
+    {
+        return STYLE_PROP_HEIGHT;
+    }
+    else if (strcmp(prop_name, "bg_color") == 0)
+    {
+        return STYLE_PROP_BG_COLOR;
+    }
+    // ... other cases ...
+    return STYLE_PROP_UNKNOWN;
 }
 
 // Function to parse style
@@ -45,7 +29,7 @@ Style *parse_style(json_t *json_style)
 {
     if (!json_style)
     {
-        return; // Handle null pointers
+        return NULL; // Handle null pointers
     }
 
     Style *style = calloc(1, sizeof(Style));
@@ -77,6 +61,9 @@ Style *parse_style(json_t *json_style)
             lv_style_set_bg_color(lv_style, color);                      // Set background color
             break;
         // ... other cases ...
+        case STYLE_PROP_UNKNOWN:
+            // Handle unknown property
+            break;
         default:
             // Handle unknown property
             break;
@@ -91,11 +78,11 @@ Style *parse_style(json_t *json_style)
 /* NOTE Flex alignments
 typedef enum {
     LV_FLEX_ALIGN_START,
-    LV_FLEX_ALIGN_CENTER,
     LV_FLEX_ALIGN_END,
-    LV_FLEX_ALIGN_BASELINE,
-    LV_FLEX_ALIGN_STRETCH,
-    LV_FLEX_ALIGN_AUTO,
+    LV_FLEX_ALIGN_CENTER,
+    LV_FLEX_ALIGN_SPACE_EVENLY,
+    LV_FLEX_ALIGN_SPACE_AROUND,
+    LV_FLEX_ALIGN_SPACE_BETWEEN,
 } lv_flex_align_t;
 */
 lv_flex_align_t get_flex_align(const char *align)
@@ -104,25 +91,25 @@ lv_flex_align_t get_flex_align(const char *align)
     {
         return LV_FLEX_ALIGN_START;
     }
-    else if (strcmp(align, "center") == 0)
-    {
-        return LV_FLEX_ALIGN_CENTER;
-    }
     else if (strcmp(align, "end") == 0)
     {
         return LV_FLEX_ALIGN_END;
     }
-    else if (strcmp(align, "baseline") == 0)
+    else if (strcmp(align, "center") == 0)
     {
-        return LV_FLEX_ALIGN_BASELINE;
+        return LV_FLEX_ALIGN_CENTER;
     }
-    else if (strcmp(align, "stretch") == 0)
+    else if (strcmp(align, "space_evenly") == 0)
     {
-        return LV_FLEX_ALIGN_STRETCH;
+        return LV_FLEX_ALIGN_SPACE_EVENLY;
     }
-    else if (strcmp(align, "auto") == 0)
+    else if (strcmp(align, "space_around") == 0)
     {
-        return LV_FLEX_ALIGN_AUTO;
+        return LV_FLEX_ALIGN_SPACE_AROUND;
+    }
+    else if (strcmp(align, "space_between") == 0)
+    {
+        return LV_FLEX_ALIGN_SPACE_BETWEEN;
     }
     return LV_FLEX_ALIGN_START;
 }
@@ -417,7 +404,7 @@ void parse_absolute_layout(AbsoluteLayoutProps *abs_props, json_t *json_abs_prop
 
     // Parse alignment (if applicable)
     const char *align_str = json_string_value(json_object_get(json_abs_props, "align"));
-    abs_prop->align = get_absolute_align(align_str);
+    abs_props->align = get_absolute_align(align_str);
 }
 
 void parse_layout_type(Portion *portion, json_t *json_layout)
@@ -466,7 +453,7 @@ Portion *parse_portion(json_t *json_portion)
     json_t *json_style = json_object_get(json_portion, "style");
     if (json_style)
     {
-        portions->style = parse_style(&portion->style, json_style);
+        portion->style = parse_style(json_style);
     }
 
     portion->next = NULL; // Initialize the next pointer
@@ -549,7 +536,7 @@ void free_portion(Portion *portion)
         return;
 
     free(portion->id);
-    free_style(&portion->style);
+    free_style(portion->style);
 
     // Free additional properties based on layout
     if (portion->layout_type == LAYOUT_GRID)
@@ -573,7 +560,7 @@ void free_design(Design *design)
     if (!design)
         return;
 
-    free_style(&design->root);
+    free_style(design->root);
     if (design->first_portion)
     {
         free_portion(design->first_portion);
