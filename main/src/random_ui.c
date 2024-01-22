@@ -115,11 +115,12 @@ void write_widget_type(char **widget_type, const char *type)
     *widget_type = calloc(strlen(type) + 1, sizeof(char));
     strcpy(*widget_type, type);
 }
-
-lv_obj_t *create_widget(const char *type, lv_obj_t *parent)
+/*
+lv_obj_t *create_styled_widget(const char *type, lv_obj_t *parent)
 {
     // Logic to create a widget of the specified type
 }
+*/
 
 lv_obj_t *create_random_widget(lv_obj_t *container, const char **widget_types, int type_count, char **widget_type)
 {
@@ -220,7 +221,8 @@ random_ui_t *create_random_ui(int width, int height, const char **widget_types, 
     // random_ui->container = lv_scr_act();
     lv_obj_set_size(random_ui->container, width, height);
     lv_obj_set_scrollbar_mode(random_ui->container, LV_SCROLLBAR_MODE_OFF);
-    lv_obj_center(random_ui->container);
+    // lv_obj_center(random_ui->container);
+    lv_obj_set_pos(random_ui->container, 30, 30);
 
     // Randomly choose between Flex and Grid layouts
     if (strcmp(layout, "flex") == 0)
@@ -237,8 +239,8 @@ random_ui_t *create_random_ui(int width, int height, const char **widget_types, 
         {
             random_ui->elements[i].widget = create_random_widget(random_ui->container, random_ui->widget_types, random_ui->type_count, &(random_ui->elements[i].type));
             // Calculate the maximum x and y positions to ensure the widget fits within the container
-            int max_x = width - random_ui->elements[i].width;
-            int max_y = height - random_ui->elements[i].height;
+            int max_x = width - random_ui->elements[i].width - 50;
+            int max_y = height - random_ui->elements[i].height - 50;
 
             // Set the position of the widget randomly within the maximum x and y positions
             int x = rand() % max_x;
@@ -281,7 +283,7 @@ void destroy_random_ui(random_ui_t *random_ui)
     free(random_ui->elements);
     free(random_ui);
 }
-
+/*
 // New function to create widgets based on the layout
 void create_widgets_according_to_layout(Layout *layout)
 {
@@ -303,3 +305,4 @@ void create_widgets_according_to_layout(Layout *layout)
         }
     }
 }
+*/
