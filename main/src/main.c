@@ -48,6 +48,7 @@
  *   CUSTOM INCLUDES
  *********************/
 #include "random_ui.h"
+#include "cmd_parser.h"
 #include <stdio.h>
 #include <string.h>
 #include "lv_100ask_screenshot.h"
@@ -189,61 +190,12 @@ static void user_image_demo()
 
 int main(int argc, char **argv)
 {
-    //(void)argc; /*Unused*/
-    //(void)argv; /*Unused*/
-    int width = 0, height = 0, widget_count = 0;
-    char *layout = NULL;
-    char *widget_types_str = NULL;
-    int opt;
-    char *output_file = NULL;
-    random_ui_t *random_ui = NULL;
-    uint8_t delay_count = 0;
+    CmdArgs args; // Declare a variable to hold command-line arguments
 
-    while ((opt = getopt(argc, argv, "w:h:c:t:o:d:l:")) != -1)
+    if (!parse_cmd_args(argc, argv, &args))
     {
-        switch (opt)
-        {
-        case 'w':
-            width = atoi(optarg);
-            break;
-        case 'h':
-            height = atoi(optarg);
-            break;
-        case 'c':
-            widget_count = atoi(optarg);
-            break;
-        case 't':
-            widget_types_str = optarg;
-            break;
-        case 'o':
-            output_file = optarg;
-            break;
-        case 'd':
-            delay_count = atoi(optarg);
-            break;
-        case 'l':
-            layout = optarg;
-            break;
-        default:
-            fprintf(stderr, "Usage: %s -w <width> -h <height> -c <widget_count> -t <widget_types> -l <layout_option> -o <output_file> -d <screenshot_delay>\n", argv[0]);
-            return 1;
-        }
-    }
-
-    if (width <= 0 || height <= 0 || widget_count <= 0 || widget_types_str == NULL)
-    {
-        fprintf(stderr, "Invalid arguments\n");
+        // If parsing fails, return with an error code
         return 1;
-    }
-
-    // Parse widget types
-    char *widget_types[10]; // Adjust the size as needed
-    int type_count = 0;
-    char *token = strtok(widget_types_str, ",");
-    while (token != NULL && type_count < 10)
-    {
-        widget_types[type_count++] = token;
-        token = strtok(NULL, ",");
     }
 
     /*Initialize LVGL*/
@@ -253,8 +205,21 @@ int main(int argc, char **argv)
     hal_init();
 
     // Create a randomized UI
-    random_ui = create_random_ui(width, height, (const char **)widget_types, type_count, widget_count, delay_count, layout);
-    for (int i = 0; i < widget_count; i++)
+    random_ui_t *random_ui;
+    switch (args.mode)
+    {
+    case MODE_RANDOMIZER:
+        random_ui = create_random_ui(args.randomizer_args.width, args.randomizer_args.height, (const char **)args.randomizer_args.widget_types, args.randomizer_args.type_count, args.randomizer_args.widget_count, args.randomizer_args.delay_count, args.randomizer_args.layout);
+        break;
+    case MODE_DESIGN_FILE:
+        // Create a UI based on the design file
+        break;
+    default:
+        fprintf(stderr, "Invalid mode\n");
+        return 1;
+    }
+
+    for (int i = 0; i < args.randomizer_args.widget_count; i++)
     {
         // FIXME These coordinates are bullshit for my desired output
         printf("Widget [%d]: %s coords:(x1=%u,x2=%u,y1=%u,y2=%u) size:(w=%u,h=%u) content:(w=%u,h=%u) rel_coords:(x1=%u,x2=%u,y1=%u,y2=%u)\n", i, random_ui->elements[i].type,
@@ -266,19 +231,19 @@ int main(int argc, char **argv)
 
     lv_img_cf_t cf = LV_IMG_CF_TRUE_COLOR_ALPHA;
     // Dump the screenshot
-    if (lv_100ask_screenshot_create(random_ui->container, cf, LV_100ASK_SCREENSHOT_SV_JPEG, output_file))
+    if (lv_100ask_screenshot_create(random_ui->container, cf, LV_100ASK_SCREENSHOT_SV_JPEG, args.randomizer_args.output_file))
     {
-        printf("Screenshot saved to %s\n", output_file);
+        printf("Screenshot saved to %s\n", args.randomizer_args.output_file);
     }
     else
     {
-        fprintf(stderr, "Failed to save screenshot to %s\n", output_file);
+        fprintf(stderr, "Failed to save screenshot to %s\n", args.randomizer_args.output_file);
     }
     // Write YOLO annotations to text file (output_file.txt)
-    char *dot = strrchr(output_file, '.');
+    char *dot = strrchr(args.randomizer_args.output_file, '.');
     strcpy(dot + 1, "txt"); // Replace the extension after the dot
     // Open the new file for writing
-    FILE *annotation_file = fopen(output_file + 1, "w"); // Skip the first character (the slash)
+    FILE *annotation_file = fopen(args.randomizer_args.output_file + 1, "w"); // Skip the first character (the slash)
     if (annotation_file == NULL)
     {
         perror("Error opening file");
@@ -287,7 +252,7 @@ int main(int argc, char **argv)
 
     // FIXME These coordinates are bullshit for my desired output
     // Write a line to the file (YOLO annotation format: <class> <x_center> <y_center> <width> <height>)
-    for (int i = 0; i < widget_count; i++)
+    for (int i = 0; i < args.randomizer_args.widget_count; i++)
     {
         int x_center = random_ui->elements[i].rel_coords.x1 + random_ui->elements[i].width / 2;
         int y_center = random_ui->elements[i].rel_coords.y1 + random_ui->elements[i].height / 2;
