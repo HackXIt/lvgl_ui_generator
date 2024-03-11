@@ -1,0 +1,82 @@
+{
+    "rootStyle": {
+        "width": 800,
+        "height": 600,
+        "bg_color": "#FF5733"
+    },
+    "portions": [
+        {
+            "id": "portion1",
+            "layout": {
+                "type": "flex",
+                "properties": {
+                    "flex_flow": "row_wrap",
+                    "main_place": "space_between",
+                    "cross_place": "center",
+                    "track_cross_place": "space_around",
+                    "grow": 1
+                }
+            },
+            "style": {
+                "width": 300,
+                "height": 200,
+                "bg_color": "#33FF57"
+            },
+            "widgets": [
+                "label",
+                "button",
+                "switch"
+            ]
+        },
+        {
+            "id": "portion2",
+            "layout": {
+                "type": "grid",
+                "properties": {
+                    "rows": [
+                        100,
+                        200,
+                        300
+                    ],
+                    "columns": [
+                        100,
+                        200
+                    ],
+                    "cell_align": "center",
+                    "justify_content": "space_evenly"
+                }
+            },
+            "style": {
+                "width": 400,
+                "height": 300,
+                "bg_color": "#3357FF"
+            },
+            "widgets": [
+                "slider",
+                "dropdown",
+                "checkbox"
+            ]
+        },
+        {
+            "id": "portion3",
+            "layout": {
+                "type": "absolute",
+                "properties": {
+                    "x": 50,
+                    "y": 50,
+                    "w": 150,
+                    "h": 150,
+                    "align": "top_left"
+                }
+            },
+            "style": {
+                "inherit": true
+            },
+            "widgets": [
+                "textarea",
+                "arc",
+                "bar"
+            ]
+        }
+    ]
+}

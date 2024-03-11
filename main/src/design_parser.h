@@ -75,6 +75,25 @@ typedef enum
     LAYOUT_FLEX,
 } lv_layout_t;
 
+typedef enum
+{
+    WIDGET_ARC,
+    WIDGET_BAR,
+    WIDGET_BUTTON,
+    WIDGET_BUTTONMATRIX,
+    WIDGET_CANVAS,
+    WIDGET_CHECKBOX,
+    WIDGET_DROPDOWN,
+    WIDGET_IMAGE,
+    WIDGET_LABEL,
+    WIDGET_LINE,
+    WIDGET_ROLLER,
+    WIDGET_SLIDER,
+    WIDGET_SWITCH,
+    WIDGET_TABLE,
+    WIDGET_TEXTAREA
+} lv_widget_types_t;
+
 typedef struct Portion
 {
     char *id;
@@ -86,7 +105,8 @@ typedef struct Portion
         AbsoluteLayoutProps absolute_props;
     } layout_props;
     Style *style;
-    struct Portion *next; // Next portion in a linked list
+    lv_widget_types_t *widget_types; // Array of widget types
+    struct Portion *next;            // Next portion in a linked list
 } Portion;
 
 void parse_layout_type(Portion *portion, json_t *json_layout);

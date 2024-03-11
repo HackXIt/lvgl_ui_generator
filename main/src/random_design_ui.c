@@ -1,18 +1,7 @@
 #include "random_design_ui.h"
 
-// Helper function to create and randomize a widget
-lv_obj_t *create_and_randomize_widget(const char *widget_type, lv_obj_t *parent, Style *style)
-{
-    // Implementation to create a widget based on the type and apply randomized styles
-    // The style application should consider the style provided and apply random changes within a defined range.
-}
-
-// Helper function to apply layout properties to a portion
-void apply_layout_to_portion(lv_obj_t *portion_obj, Portion *portion)
-{
-    // Implementation to apply layout properties (flex, grid, absolute) to the given portion object
-    // This should use portion->layout_type and portion->layout_props
-}
+lv_obj_t *create_and_randomize_widget(const char *widget_type, lv_obj_t *parent, Style *style);
+void apply_layout_to_portion(lv_obj_t *portion_obj, Portion *portion);
 
 // Main function to create a randomized design UI
 void create_randomized_design_ui(const char *design_file)
@@ -57,4 +46,18 @@ void create_randomized_design_ui(const char *design_file)
 
     // Clean up
     free_design(design);
+}
+
+// Helper function to create and randomize a widget
+lv_obj_t *create_and_randomize_widget(const char *widget_type, lv_obj_t *parent, Style *style)
+{
+    // Implementation to create a widget based on the type and apply randomized styles
+    // The style application should consider the style provided and apply random changes within a defined range.
+}
+
+// Helper function to apply layout properties to a portion
+void apply_layout_to_portion(lv_obj_t *portion_obj, Portion *portion)
+{
+    // Implementation to apply layout properties (flex, grid, absolute) to the given portion object
+    // This should use portion->layout_type and portion->layout_props
 }

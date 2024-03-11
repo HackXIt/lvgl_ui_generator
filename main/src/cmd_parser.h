@@ -9,7 +9,8 @@ typedef enum
 {
     MODE_UNSPECIFIED,
     MODE_RANDOMIZER,
-    MODE_DESIGN_FILE
+    MODE_DESIGN_FILE,
+    MODE_TEST_PARSER
 } OperationMode;
 
 typedef struct
@@ -37,4 +38,5 @@ typedef struct
     DesignFileArgs design_file_args;
 } CmdArgs;
 
+void print_help(const char *program_name);
 bool parse_cmd_args(int argc, char *argv[], CmdArgs *args);

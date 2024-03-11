@@ -49,6 +49,8 @@
  *********************/
 #include "random_ui.h"
 #include "cmd_parser.h"
+#include "design_parser.h"
+#include "random_design_ui.h"
 #include <stdio.h>
 #include <string.h>
 #include "lv_100ask_screenshot.h"
@@ -213,6 +215,14 @@ int main(int argc, char **argv)
         break;
     case MODE_DESIGN_FILE:
         // Create a UI based on the design file
+        create_randomized_design_ui(args.design_file_args.design_file);
+        break;
+    case MODE_TEST_PARSER:
+        // Test the parser
+        printf("Test parser\n");
+        Design *design = parse_design(args.design_file_args.design_file);
+        free_design(design);
+        exit(0);
         break;
     default:
         fprintf(stderr, "Invalid mode\n");

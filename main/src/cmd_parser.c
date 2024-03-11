@@ -6,6 +6,7 @@
 
 bool parse_randomizer_args(int argc, char *argv[], RandomizerArgs *args);
 bool parse_design_file_args(int argc, char *argv[], DesignFileArgs *args);
+bool parse_test_parser_args(int argc, char *argv[], DesignFileArgs *args);
 
 void print_help(const char *program_name)
 {
@@ -46,6 +47,10 @@ bool parse_cmd_args(int argc, char *argv[], CmdArgs *args)
             {
                 args->mode = MODE_DESIGN_FILE;
             }
+            else if (strcmp(optarg, "test-parser") == 0)
+            {
+                args->mode = MODE_TEST_PARSER;
+            }
             else
             {
                 fprintf(stderr, "Invalid mode\n");
@@ -70,16 +75,15 @@ bool parse_cmd_args(int argc, char *argv[], CmdArgs *args)
     optind = 2;
 
     // Parse arguments based on the mode
-    if (args->mode == MODE_RANDOMIZER)
+    switch (args->mode)
     {
+    case MODE_RANDOMIZER:
         return parse_randomizer_args(argc, argv, &args->randomizer_args);
-    }
-    else if (args->mode == MODE_DESIGN_FILE)
-    {
+    case MODE_DESIGN_FILE:
         return parse_design_file_args(argc, argv, &args->design_file_args);
-    }
-    else
-    {
+    case MODE_TEST_PARSER:
+        return parse_test_parser_args(argc, argv, &args->design_file_args);
+    default:
         fprintf(stderr, "Mode not set\n");
         return false;
     }
@@ -165,6 +169,31 @@ bool parse_design_file_args(int argc, char *argv[], DesignFileArgs *args)
     if (args->design_file == NULL)
     {
         fprintf(stderr, "Design file argument is required for design file mode\n");
+        return false;
+    }
+
+    return true;
+}
+
+bool parse_test_parser_args(int argc, char *argv[], DesignFileArgs *args)
+{
+    int opt;
+    while ((opt = getopt(argc, argv, "f:")) != -1)
+    {
+        switch (opt)
+        {
+        case 'f':
+            args->design_file = optarg;
+            break;
+        default:
+            fprintf(stderr, "Invalid option for test parser mode\n");
+            return false;
+        }
+    }
+
+    if (args->design_file == NULL)
+    {
+        fprintf(stderr, "Design file argument is required for test parser mode\n");
         return false;
     }
 

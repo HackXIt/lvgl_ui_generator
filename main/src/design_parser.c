@@ -412,21 +412,130 @@ void parse_layout_type(Portion *portion, json_t *json_layout)
     if (!portion || !json_layout)
         return;
 
-    const char *layout_type = json_string_value(json_layout);
+    const char *layout_type = json_string_value(json_object_get(json_layout, "type"));
+    const char *layout_props = json_object_get(json_layout, "properties");
     if (strcmp(layout_type, "flex") == 0)
     {
         portion->layout_type = LAYOUT_FLEX;
-        parse_flex_layout(&portion->layout_props.flex_props, json_object_get(json_layout, "flex_properties"));
+        parse_flex_layout(&portion->layout_props.flex_props, layout_props);
     }
     else if (strcmp(layout_type, "grid") == 0)
     {
         portion->layout_type = LAYOUT_GRID;
-        parse_grid_layout(&portion->layout_props.grid_props, json_object_get(json_layout, "grid_properties"));
+        parse_grid_layout(&portion->layout_props.grid_props, layout_props);
     }
     else if (strcmp(layout_type, "absolute") == 0)
     {
         portion->layout_type = LAYOUT_ABSOLUTE;
-        parse_absolute_layout(&portion->layout_props.absolute_props, json_object_get(json_layout, "absolute_properties"));
+        parse_absolute_layout(&portion->layout_props.absolute_props, layout_props);
+    }
+    else
+    {
+        fprintf(stderr, "Unknown layout type: %s", layout_type);
+        exit(1);
+    }
+}
+
+/* NOTE WIDGET TYPES
+    WIDGET_ARC,
+    WIDGET_BAR,
+    WIDGET_BUTTON,
+    WIDGET_BUTTONMATRIX,
+    WIDGET_CANVAS,
+    WIDGET_CHECKBOX,
+    WIDGET_DROPDOWN,
+    WIDGET_IMAGE,
+    WIDGET_LABEL,
+    WIDGET_LINE,
+    WIDGET_ROLLER,
+    WIDGET_SLIDER,
+    WIDGET_SWITCH,
+    WIDGET_TABLE,
+    WIDGET_TEXTAREA
+*/
+void parse_widget_types(Portion *portion, json_t *json_widget_types)
+{
+    if (!json_widget_types || !json_is_array(json_widget_types))
+    {
+        return; // No widget types or not an array
+    }
+
+    size_t index;
+    json_t *json_widget_type;
+    size_t types = json_array_size(json_widget_types);
+    portion->widget_types = calloc(types, sizeof(lv_widget_types_t));
+    json_array_foreach(json_widget_types, index, json_widget_type)
+    {
+        const char *widget_type = json_string_value(json_widget_type);
+        // Store or process the widget type string
+        // For example, add it to a list in the Portion struct
+
+        if (strcmp(widget_type, "arc") == 0)
+        {
+            portion->widget_types[index] = WIDGET_ARC;
+        }
+        else if (strcmp(widget_type, "bar") == 0)
+        {
+            portion->widget_types[index] = WIDGET_BAR;
+        }
+        else if (strcmp(widget_type, "button") == 0)
+        {
+            portion->widget_types[index] = WIDGET_BUTTON;
+        }
+        else if (strcmp(widget_type, "buttonmatrix") == 0)
+        {
+            portion->widget_types[index] = WIDGET_BUTTONMATRIX;
+        }
+        else if (strcmp(widget_type, "canvas") == 0)
+        {
+            portion->widget_types[index] = WIDGET_CANVAS;
+        }
+        else if (strcmp(widget_type, "checkbox") == 0)
+        {
+            portion->widget_types[index] = WIDGET_CHECKBOX;
+        }
+        else if (strcmp(widget_type, "dropdown") == 0)
+        {
+            portion->widget_types[index] = WIDGET_DROPDOWN;
+        }
+        else if (strcmp(widget_type, "image") == 0)
+        {
+            portion->widget_types[index] = WIDGET_IMAGE;
+        }
+        else if (strcmp(widget_type, "label") == 0)
+        {
+            portion->widget_types[index] = WIDGET_LABEL;
+        }
+        else if (strcmp(widget_type, "line") == 0)
+        {
+            portion->widget_types[index] = WIDGET_LINE;
+        }
+        else if (strcmp(widget_type, "roller") == 0)
+        {
+            portion->widget_types[index] = WIDGET_ROLLER;
+        }
+        else if (strcmp(widget_type, "slider") == 0)
+        {
+            portion->widget_types[index] = WIDGET_SLIDER;
+        }
+        else if (strcmp(widget_type, "switch") == 0)
+        {
+            portion->widget_types[index] = WIDGET_SWITCH;
+        }
+        else if (strcmp(widget_type, "table") == 0)
+        {
+            portion->widget_types[index] = WIDGET_TABLE;
+        }
+        else if (strcmp(widget_type, "textarea") == 0)
+        {
+            portion->widget_types[index] = WIDGET_TEXTAREA;
+        }
+        else
+        {
+            // default to button if unknown
+            fprintf(stderr, "[%u] Unknown widget type: %s => Defaulting to BUTTON.", index, widget_type);
+            portion->widget_types[index] = WIDGET_BUTTON;
+        }
     }
 }
 
@@ -455,6 +564,10 @@ Portion *parse_portion(json_t *json_portion)
     {
         portion->style = parse_style(json_style);
     }
+
+    // Parse widget types
+    json_t *json_widget_types = json_object_get(json_portion, "widgets");
+    parse_widget_types(portion, json_widget_types);
 
     portion->next = NULL; // Initialize the next pointer
     return portion;
@@ -536,6 +649,7 @@ void free_portion(Portion *portion)
         return;
 
     free(portion->id);
+    free(portion->widget_types);
     free_style(portion->style);
 
     // Free additional properties based on layout
