@@ -24,5 +24,20 @@
             "preLaunchTask": "Build",
             "stopAtEntry": false,
         },
+        {
+            "name": "Debug design parser",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/bin/demo",
+            "args": [
+                "-m",
+                "test-parser",
+                "-f",
+                "${workspaceFolder}/ui/example1.json"
+            ],
+            "cwd": "${workspaceFolder}",
+            "preLaunchTask": "Build",
+            "stopAtEntry": false,
+        },
     ],
 }
