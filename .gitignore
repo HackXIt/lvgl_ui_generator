@@ -14,3 +14,7 @@ ui/
 # VSCode
 !.vscode/
 !.vscode/*
+
+# Runtime files
+*.jpg
+*.txt
