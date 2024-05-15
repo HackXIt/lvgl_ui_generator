@@ -84,3 +84,7 @@ To allow custom UI code an `lv_conf.h` file placed at `ui/simulator/inc` will au
 To build and debug, press F5. You should now have your UI displayed in a new window and can access all the debug features of VSCode through GDB.
 
 To allow temporary modification between simulator and device code, a SIMULATOR=1 define is added globally.
+
+# License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
